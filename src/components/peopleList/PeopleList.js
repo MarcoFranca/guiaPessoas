@@ -1,19 +1,19 @@
 import React from "react";
-import {StyleSheet, View} from "react-native";
+import {FlatList, StyleSheet} from "react-native";
 import PeopleListItem from "./PeopleListItem";
 
 const PeopleList = (props) =>{
-    const textElements = props.peoples.map(people =>
-            <PeopleListItem Key={people.login.uuid} people={people} />
-    );
-
     return(
-  <View style={styles.container}>
-      {textElements}
-  </View>
-)
-
-}
+        <FlatList
+            style={styles.container}
+            data={props.peoples}
+            renderItem={({item})=>(
+                <PeopleListItem
+                    navigateToUserDetail={props.onPressItem}
+                    people={item} />
+            )} keyExtractor={item => item.login.uuid}/>
+    );
+};
 
 export default PeopleList;
 
