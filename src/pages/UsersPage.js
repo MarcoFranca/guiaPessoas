@@ -1,5 +1,5 @@
-import React from "react";
-import {View} from 'react-native';
+import * as React from "react";
+import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
 import PeopleList from "../components/peopleList/PeopleList";
 import axios from "axios";
 
@@ -8,25 +8,61 @@ export default class UsersPage extends React.Component {
         super(props);
 
         this.state ={
-            peoples:[]
+            peoples:[],
+            loading:false,
+            error:false,
         };
     }
     componentDidMount() {
-        axios.get('https://randomuser.me/api/?nat=br&results=5')
+        this.setState({loading: true});
+        axios.get('https://randomuser.me/api/?nat=br&results=150')
             .then(res =>{
                 const {results} = res.data;
                 this.setState({
-                    peoples:results
+                    peoples:results,
+                    loading:false,
+                });
+            }).catch(err => {
+                console.log(err)
+                this.setState({
+                    loading:false,
+                    error: true
                 })
-            }).catch(err=> console.log(err))
+            }
+
+        )
     }
 
+    renderLoading (){
+        if (this.state.loading){
+    return <ActivityIndicator size={"large"} color='#6ca2f7'/>
+        }
+    }
     render() {
         return (
-            <View>
-                <PeopleList peoples={this.state.peoples} />
+            <View style={styles.container}>
+                {this.state.loading ?  <ActivityIndicator  size={"large"} color='#6ca2f7'/>:
+                    this.state.error
+                        ?<Text style={styles.error}>Ops... Algo deu errado!!! :(</Text>
+                        : <PeopleList
+                    peoples={this.state.peoples}
+                    onPressItem={(pageParams)=> {
+                    this.props.navigation.navigate('UserDetail', pageParams);
+                }} />
+                }
             </View>
         );
     }
 }
 
+const styles = StyleSheet.create({
+    container:{
+        flex:1,
+        justifyContent:"center",
+    },
+    error:{
+        color: 'red',
+        fontSize:18,
+        alignSelf: 'center'
+    }
+})
